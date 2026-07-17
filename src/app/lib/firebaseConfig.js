@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration keys
 const firebaseConfig = {
-  apiKey: "AIzaSyAi7Dun-OkVdI8jTHs29FF2LHb5wc9-nNI",
+  apiKey: "AIzaSyCwYTuaqFA-YlvPupm2FTYZl8JflluyZ6A",
   authDomain: "mykabel.firebaseapp.com",
   projectId: "mykabel",
   storageBucket: "mykabel.firebasestorage.app",
