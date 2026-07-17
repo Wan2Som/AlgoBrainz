@@ -61,9 +61,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "Missing backend system deployment key." }, { status: 500 });
     }
 
-    // Swapping back to stable 2.5-flash since you have a fresh API key quota pool
+// Swapping back to stable 2.5-flash since you have a fresh API key quota pool
+    // Swapping back to stable 3.5-flash since you have a fresh API key quota pool
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
