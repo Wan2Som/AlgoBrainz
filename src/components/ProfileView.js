@@ -4,8 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../app/lib/firebaseConfig';
 
-// STATIC NEWS DICTIONARY - Zero API calls made
-// STATIC NEWS DICTIONARY - Zero API calls made, authentic redirects
 const STATIC_NEWS = {
   'FinTech': [
     { source: "The Edge Malaysia", title: "Funding Tide Turns for Local FinTech Players as Capital Outflows Stabilize in KL", url: "https://theedgemalaysia.com/category/startups" },
@@ -141,13 +139,14 @@ export default function ProfileView() {
                     <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h4 className="text-xl font-black text-white tracking-tight">{match.name}</h4>
                       <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                        {match.matchScore} Match
+                        {match.matchScore || match.match} Match
                       </span>
                       <span className="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                         {match.type}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-400 mb-4 pr-4">{match.explanation}</p>
+                    {/* Note: Fallback mapping included so both AI and Manual DSA objects render perfectly */}
+                    <p className="text-sm text-slate-400 mb-4 pr-4">{match.explanation || match.desc}</p>
                     
                     <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300">
                       <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
@@ -157,18 +156,24 @@ export default function ProfileView() {
                         <span className="text-slate-500 uppercase text-[9px] tracking-widest">Stage:</span> {match.stage}
                       </div>
                       <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
-                        <span className="text-amber-500/70 uppercase text-[9px] tracking-widest">Ticket:</span> {match.ticketSize}
+                        <span className="text-amber-500/70 uppercase text-[9px] tracking-widest">Ticket:</span> RM {match.ticketSize?.toLocaleString() || match.ticketSize}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto shrink-0 mt-4 md:mt-0">
-                    <a href={match.portalUrl} target="_blank" rel="noopener noreferrer" className="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-all shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+                    <button 
+                      onClick={() => window.open(match.portalUrl, '_blank')}
+                      className="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-all shadow-[0_0_10px_rgba(245,158,11,0.3)]"
+                    >
                       Launch Portal
-                    </a>
-                    <a href={match.faqUrl} target="_blank" rel="noopener noreferrer" className="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-colors">
+                    </button>
+                    <button 
+                      onClick={() => window.open(match.faqUrl || '#', '_blank')}
+                      className="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-colors"
+                    >
                       View FAQ Guide
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
