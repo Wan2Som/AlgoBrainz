@@ -56,8 +56,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
       {/* INPUT FORM */}
       {!searchResult && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Manual Algorithmic Directory</h1>
-          <p className="text-slate-400 mb-10">Perform deterministic Range & Industry searches directly on raw memory nodes without AI prediction pipelines.</p>
+          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Deterministic Search Directory</h1>
+          <p className="text-slate-400 mb-10">Execute precise parameter-based traversal and data extraction directly across validated memory nodes.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
@@ -98,7 +98,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
           <div className="flex items-center justify-between border-t border-slate-800/60 pt-8 mt-4">
             <span className="text-slate-500 text-sm font-bold flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></span>
-              AWAITING MANUAL EXECUTION
+              AWAITING SYSTEM EXECUTION
             </span>
             <div className="flex gap-4">
               <button 
