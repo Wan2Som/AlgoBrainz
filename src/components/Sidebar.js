@@ -5,9 +5,9 @@ import React from 'react';
 export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
 const tabs = [
   { id: 'profile', label: 'My Profile' },
+  { id: 'directory', label: 'Deterministic Search' }, 
   { id: 'ai-matching', label: 'AI Matching' },
   { id: 'roadmap', label: 'Prerequisite Roadmap' },
-  { id: 'directory', label: 'Manual Directory (DSA)' }, // <-- Inserted here
   { id: 'chatbot', label: 'AI Chatbot' }
 ];
     
