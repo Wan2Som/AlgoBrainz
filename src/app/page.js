@@ -66,6 +66,28 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [router]);
 
+  const handleSaveManualMatchesToProfile = async (manualMatches) => {
+    // 1. Update metric counts
+    const updatedMetrics = {
+      ...metrics,
+      matches: manualMatches.length
+    };
+
+    setRecommendations(manualMatches);
+    setMetrics(updatedMetrics);
+
+    // 2. Save choice silently to Firebase if authenticated
+    if (auth.currentUser) {
+      await setDoc(doc(db, "smes", auth.currentUser.uid), {
+        recommendations: manualMatches,
+        metrics: updatedMetrics
+      }, { merge: true });
+    }
+
+    // 3. Navigate directly back to Profile page with updated data!
+    setActiveTab('profile');
+  };
+  
   const handleFormSubmissionComplete = async (submittedData) => {
     setLoading(true);
     const user = auth.currentUser;
@@ -216,7 +238,9 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'directory' && (
-            <InvestorDirectory onNavigateToProfile={() => setActiveTab('profile')} />
+            <InvestorDirectory 
+              onSaveToProfile={handleSaveManualMatchesToProfile} 
+            />
           )}
 
           {activeTab === 'chatbot' && <ChatbotView smeProfile={smeProfile} />}
