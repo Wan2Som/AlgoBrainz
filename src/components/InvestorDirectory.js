@@ -3,26 +3,36 @@
 import React, { useState } from 'react';
 import { investorDatabase, investorTree, linearSearchInvestors } from '../utils/searchAlgorithms';
 
-// 1. Accept the new onNavigateToProfile prop here
-export default function InvestorDirectory({ onNavigateToProfile }) {
-  const [targetAmount, setTargetAmount] = useState('');
+export default function InvestorDirectory({ onSaveToProfile }) {
+  const [minTicket, setMinTicket] = useState('');
+  const [maxTicket, setMaxTicket] = useState('');
+  const [industry, setIndustry] = useState('All');
   const [searchResult, setSearchResult] = useState(null);
   const [step, setStep] = useState(1);
 
   const executeSearch = (type) => {
-    const target = parseInt(targetAmount);
-    if (!target) return;
+    const min = parseInt(minTicket) || 0;
+    const max = parseInt(maxTicket) || Infinity;
     
     setStep(2);
     if (type === 'Linear') {
-      setSearchResult(linearSearchInvestors(investorDatabase, target));
+      setSearchResult(linearSearchInvestors(investorDatabase, min, max, industry));
     } else {
-      setSearchResult(investorTree.search(investorTree.root, target));
+      const res = investorTree.rangeSearch(investorTree.root, min, max, industry);
+      setSearchResult(res || { results: [], operations: 1, type: 'BST Range Search O(log n + k)' });
+    }
+  };
+
+  const handleApplyMatches = () => {
+    if (searchResult && searchResult.results.length > 0) {
+      onSaveToProfile(searchResult.results);
     }
   };
 
   const resetSearch = () => {
-    setTargetAmount('');
+    setMinTicket('');
+    setMaxTicket('');
+    setIndustry('All');
     setSearchResult(null);
     setStep(1);
   };
@@ -34,38 +44,53 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
       <div className="flex items-center justify-center gap-4 mb-16">
         <div className="flex items-center gap-2">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 1 ? 'bg-amber-500 text-black' : 'bg-slate-800 text-slate-500'}`}>1</div>
-          <span className={`text-xs font-bold tracking-widest ${step === 1 ? 'text-amber-500' : 'text-slate-500'}`}>SEARCH CONFIG</span>
+          <span className={`text-xs font-bold tracking-widest ${step === 1 ? 'text-amber-500' : 'text-slate-500'}`}>DIRECTORY FILTERS</span>
         </div>
         <div className="w-16 h-px bg-slate-800"></div>
         <div className="flex items-center gap-2">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 2 ? 'bg-amber-500 text-black' : 'bg-slate-800 text-slate-500'}`}>2</div>
-          <span className={`text-xs font-bold tracking-widest ${step === 2 ? 'text-amber-500' : 'text-slate-500'}`}>DSA MATCH</span>
+          <span className={`text-xs font-bold tracking-widest ${step === 2 ? 'text-amber-500' : 'text-slate-500'}`}>DSA MATCH RESULTS</span>
         </div>
       </div>
 
       {/* INPUT FORM */}
       {!searchResult && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Financial & Algorithmic Footprint</h1>
-          <p className="text-slate-400 mb-10">Configure operational thresholds for your manual matrix calculation pipelines.</p>
+          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Manual Algorithmic Directory</h1>
+          <p className="text-slate-400 mb-10">Perform deterministic Range & Industry searches directly on raw memory nodes without AI prediction pipelines.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Target Funding Amount (RM)</label>
-              <input 
-                type="number" 
-                value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value)}
-                placeholder="e.g. 150000"
-                className="w-full bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all placeholder:text-slate-700"
-              />
-              <p className="text-[10px] text-slate-600 mt-2 ml-1">Available nodes: 50K, 100K, 150K, 200K, 250K, 300K, 500K</p>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Industry Vertical</label>
+              <select 
+                value={industry}
+                onChange={(e) => setIndustry(e.target.value)}
+                className="w-full bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all"
+              >
+                <option value="All">All Industries</option>
+                <option value="FinTech">FinTech</option>
+                <option value="Tech">Tech / SaaS</option>
+                <option value="Creative Tech">Creative Tech / Gaming</option>
+              </select>
             </div>
-            
+
             <div>
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Data Structure Model</label>
-              <div className="w-full bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-slate-500 cursor-not-allowed">
-                Hybrid (Linear & BST)
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Target Funding Range (RM)</label>
+              <div className="flex gap-3">
+                <input 
+                  type="number" 
+                  value={minTicket}
+                  onChange={(e) => setMinTicket(e.target.value)}
+                  placeholder="Min (e.g. 50000)"
+                  className="w-1/2 bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all placeholder:text-slate-700"
+                />
+                <input 
+                  type="number" 
+                  value={maxTicket}
+                  onChange={(e) => setMaxTicket(e.target.value)}
+                  placeholder="Max (e.g. 250000)"
+                  className="w-1/2 bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all placeholder:text-slate-700"
+                />
               </div>
             </div>
           </div>
@@ -73,7 +98,7 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
           <div className="flex items-center justify-between border-t border-slate-800/60 pt-8 mt-4">
             <span className="text-slate-500 text-sm font-bold flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-slate-600 animate-pulse"></span>
-              AWAITING EXECUTION
+              AWAITING MANUAL EXECUTION
             </span>
             <div className="flex gap-4">
               <button 
@@ -86,7 +111,7 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
                 onClick={() => executeSearch('BST')} 
                 className="bg-amber-500 hover:bg-amber-400 text-[#0B1120] font-black px-8 py-4 rounded-xl text-sm tracking-widest uppercase transition-colors shadow-[0_0_20px_rgba(245,158,11,0.15)]"
               >
-                BST O(Log N) Match →
+                BST Range O(Log N) Match →
               </button>
             </div>
           </div>
@@ -99,7 +124,7 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
           <div className="flex justify-between items-end mb-8">
             <div>
               <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Diagnostic Telemetry 🚀</h1>
-              <p className="text-slate-400">Real-time status analysis of algorithmic traversal.</p>
+              <p className="text-slate-400">Range query completed across memory buffers.</p>
             </div>
             <button onClick={resetSearch} className="text-amber-500 font-bold hover:text-amber-400 mb-2">← RUN NEW QUERY</button>
           </div>
@@ -108,16 +133,16 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Algorithm Used</span>
-              <span className="text-3xl font-black text-amber-500">{searchResult.type}</span>
+              <span className="text-2xl font-black text-amber-500">{searchResult.type}</span>
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Traversal Steps</span>
               <span className="text-3xl font-black text-white">{searchResult.operations}</span>
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
-              <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Resolution Status</span>
-              <span className={`text-3xl font-black ${searchResult.result ? 'text-emerald-500' : 'text-red-500'}`}>
-                {searchResult.result ? 'MATCH FOUND' : 'NULL'}
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Matches Extracted</span>
+              <span className={`text-3xl font-black ${searchResult.results.length > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                {searchResult.results.length} NODES
               </span>
             </div>
           </div>
@@ -127,61 +152,62 @@ export default function InvestorDirectory({ onNavigateToProfile }) {
             Algorithmic Recommended Matches
           </h3>
 
-          {/* The Rich Card */}
-          {searchResult.result ? (
-            <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-8 shadow-xl">
-              <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <h4 className="text-2xl font-black text-white tracking-tight">{searchResult.result.name}</h4>
-                    <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest px-2.5 py-1 rounded">
-                      {searchResult.result.match} MATCH
-                    </span>
-                    <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
-                      {searchResult.result.type}
-                    </span>
-                  </div>
-                  
-                  <p className="text-slate-400 text-sm mb-8 leading-relaxed max-w-3xl">
-                    {searchResult.result.desc}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-4">
-                    <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
-                      <span className="text-slate-500 font-bold uppercase tracking-wider">Focus:</span> 
-                      <span className="text-slate-200 font-medium">{searchResult.result.focus}</span>
-                    </div>
-                    <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
-                      <span className="text-slate-500 font-bold uppercase tracking-wider">Stage:</span> 
-                      <span className="text-slate-200 font-medium">{searchResult.result.stage}</span>
-                    </div>
-                    <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
-                      <span className="text-amber-500/70 font-bold uppercase tracking-wider">Ticket:</span> 
-                      <span className="text-amber-500 font-black">RM {searchResult.result.ticketSize.toLocaleString()}</span>
+          {/* List of Matched Cards */}
+          <div className="space-y-6">
+            {searchResult.results.length > 0 ? (
+              searchResult.results.map((item) => (
+                <div key={item.id} className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-8 shadow-xl">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-3 mb-4">
+                        <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
+                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest px-2.5 py-1 rounded">
+                          {item.match} MATCH
+                        </span>
+                        <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
+                          {item.type}
+                        </span>
+                      </div>
+                      
+                      <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+                        {item.desc}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-4">
+                        <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
+                          <span className="text-slate-500 font-bold uppercase tracking-wider">Industry:</span> 
+                          <span className="text-slate-200 font-medium">{item.industry}</span>
+                        </div>
+                        <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
+                          <span className="text-slate-500 font-bold uppercase tracking-wider">Stage:</span> 
+                          <span className="text-slate-200 font-medium">{item.stage}</span>
+                        </div>
+                        <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
+                          <span className="text-amber-500/70 font-bold uppercase tracking-wider">Ticket:</span> 
+                          <span className="text-amber-500 font-black">RM {item.ticketSize.toLocaleString()}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
-                  {/* 2. Added onClick here and updated text slightly to indicate the routing behavior */}
-                  <button 
-                    onClick={onNavigateToProfile}
-                    className="bg-amber-500 hover:bg-amber-400 text-[#0B1120] font-black px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase transition-colors text-center w-full shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-                  >
-                    Launch Portal & Profile
-                  </button>
-                  <button className="bg-transparent hover:bg-slate-800 border border-slate-700 text-white font-bold px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase transition-colors text-center w-full">
-                    View FAQ Guide
-                  </button>
-                </div>
-                
+              ))
+            ) : (
+              <div className="bg-[#131B2A] border border-red-500/20 rounded-2xl p-10 text-center">
+                <h4 className="text-xl font-black text-white mb-2">No Matching Entities</h4>
+                <p className="text-slate-500">The traversal completed in {searchResult.operations} steps but found zero records within your range/industry filter.</p>
               </div>
-            </div>
-          ) : (
-            <div className="bg-[#131B2A] border border-red-500/20 rounded-2xl p-10 text-center">
-              <h4 className="text-xl font-black text-white mb-2">No Entity Found</h4>
-              <p className="text-slate-500">The algorithmic traversal completed in {searchResult.operations} steps but returned a null reference for RM {targetAmount}.</p>
+            )}
+          </div>
+
+          {/* Sync Button */}
+          {searchResult.results.length > 0 && (
+            <div className="mt-8 flex justify-end">
+              <button 
+                onClick={handleApplyMatches}
+                className="bg-amber-500 hover:bg-amber-400 text-[#0B1120] font-black px-10 py-5 rounded-xl text-sm tracking-widest uppercase transition-colors shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+              >
+                Sync Matches to Profile →
+              </button>
             </div>
           )}
         </div>
