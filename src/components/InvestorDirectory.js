@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { investorDatabase, investorTree, linearSearchInvestors } from '../utils/searchAlgorithms';
 
-export default function InvestorDirectory() {
+// 1. Accept the new onNavigateToProfile prop here
+export default function InvestorDirectory({ onNavigateToProfile }) {
   const [targetAmount, setTargetAmount] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [step, setStep] = useState(1);
@@ -29,7 +30,7 @@ export default function InvestorDirectory() {
   return (
     <div className="min-h-screen bg-[#0B1120] text-slate-300 font-sans p-8 max-w-5xl mx-auto">
       
-      {/* STEP INDICATOR (Matches Screenshot 1) */}
+      {/* STEP INDICATOR */}
       <div className="flex items-center justify-center gap-4 mb-16">
         <div className="flex items-center gap-2">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === 1 ? 'bg-amber-500 text-black' : 'bg-slate-800 text-slate-500'}`}>1</div>
@@ -42,7 +43,7 @@ export default function InvestorDirectory() {
         </div>
       </div>
 
-      {/* INPUT FORM (Matches Screenshot 2) */}
+      {/* INPUT FORM */}
       {!searchResult && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Financial & Algorithmic Footprint</h1>
@@ -92,7 +93,7 @@ export default function InvestorDirectory() {
         </div>
       )}
 
-      {/* RESULTS VIEW (Matches Screenshot 3) */}
+      {/* RESULTS VIEW */}
       {searchResult && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex justify-between items-end mb-8">
@@ -163,8 +164,12 @@ export default function InvestorDirectory() {
                 </div>
 
                 <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
-                  <button className="bg-amber-500 hover:bg-amber-400 text-[#0B1120] font-black px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase transition-colors text-center w-full shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                    Launch Portal
+                  {/* 2. Added onClick here and updated text slightly to indicate the routing behavior */}
+                  <button 
+                    onClick={onNavigateToProfile}
+                    className="bg-amber-500 hover:bg-amber-400 text-[#0B1120] font-black px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase transition-colors text-center w-full shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                  >
+                    Launch Portal & Profile
                   </button>
                   <button className="bg-transparent hover:bg-slate-800 border border-slate-700 text-white font-bold px-8 py-3.5 rounded-xl text-xs tracking-widest uppercase transition-colors text-center w-full">
                     View FAQ Guide
