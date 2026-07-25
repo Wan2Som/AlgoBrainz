@@ -4,6 +4,7 @@ import ProfileView from '../components/ProfileView';
 import ChatbotView from '../components/ChatbotView';
 import StartupIntakeForm from '../components/StartupIntakeForm';
 import RoadmapTracker from '../components/RoadmapTracker';
+import InvestorDirectory from '@/components/InvestorDirectory';
 import InvestorAnalytics from '../components/InvestorAnalytics';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import React, { useState, useEffect } from 'react';
@@ -119,7 +120,8 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-const handleApplyToOpportunity = async (opportunity) => {
+
+  const handleApplyToOpportunity = async (opportunity) => {
     // 1. Prevent adding the exact same company twice
     if (activeApplications.find(app => app.name === opportunity.name)) {
       setActiveTab(smeProfile?.isRegistered ? 'launch' : 'roadmap');
@@ -150,6 +152,7 @@ const handleApplyToOpportunity = async (opportunity) => {
     // Auto-route straight to Analytics so they can see their odds immediately!
     setActiveTab('analytics');
   };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -210,6 +213,11 @@ const handleApplyToOpportunity = async (opportunity) => {
               activeApplications={activeApplications} 
               smeProfile={smeProfile} 
             />
+          )}
+
+          {/* NEW DIRECTORY TAB RENDERED HERE */}
+          {activeTab === 'directory' && (
+            <InvestorDirectory />
           )}
 
           {activeTab === 'chatbot' && <ChatbotView smeProfile={smeProfile} />}
