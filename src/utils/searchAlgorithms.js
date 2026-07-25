@@ -4,43 +4,50 @@ export const investorDatabase = [
   { 
     id: 1, name: "NEXEA Angel Network", ticketSize: 50000, industry: "FinTech", type: "Angel Syndicate", 
     focus: "Tech, B2B SaaS, HealthTech", stage: "Pre-Seed", match: "88%", 
-    portalUrl: "https://www.nexea.co",
+    portalUrl: "https://www.nexea.co", 
+    faqUrl: "https://www.nexea.co/angel-investors-malaysia/", 
     desc: "Early stage angel investment network providing mentorship and initial capital for scalable tech startups." 
   },
   { 
     id: 2, name: "1337 Ventures", ticketSize: 100000, industry: "FinTech", type: "Venture Capital & Accelerator", 
     focus: "FinTech, SaaS, Pre-seed Tech", stage: "Ideation / Pre-Seed", match: "95%", 
-    portalUrl: "https://1337ventures.com", 
+    portalUrl: "https://1337.ventures/", 
+    faqUrl: "https://1337.ventures/about/", 
     desc: "Leading pre-seed investor specializing in early-stage fintech through their structured accelerator programs." 
   },
   { 
     id: 3, name: "Cradle Fund (CIP Spark)", ticketSize: 150000, industry: "Tech", type: "Government Grant", 
     focus: "Pre-seed, early-stage tech, MVP development", stage: "Ideation / MVP Concept", match: "98%", 
     portalUrl: "https://cradle.com.my", 
+    faqUrl: "https://cradle.com.my/cip-spark/", 
     desc: "Perfect conditional grant for Malaysian tech startups at MVP phase to develop and validate early-stage innovations." 
   },
   { 
     id: 4, name: "MDEC (Digital Content Grant)", ticketSize: 200000, industry: "Creative Tech", type: "Government Grant", 
     focus: "Digital Media, Gaming, Animation", stage: "MVP / Early Traction", match: "92%", 
     portalUrl: "https://mdec.my", 
+    faqUrl: "https://mdec.my/grants",
     desc: "Specialized grant supporting local digital content creators and tech developers in commercializing their IPs." 
   },
   { 
     id: 5, name: "Sunway iLabs", ticketSize: 250000, industry: "FinTech", type: "Corporate VC", 
     focus: "Smart Cities, EdTech, PropTech", stage: "Early Traction", match: "90%", 
     portalUrl: "https://innovationlabs.sunway.edu.my", 
+    faqUrl: "https://innovationlabs.sunway.edu.my/about-us/", 
     desc: "Corporate venture arm providing capital and access to the vast Sunway ecosystem as a testbed for startups." 
   },
   { 
     id: 6, name: "ScaleUp Malaysia", ticketSize: 300000, industry: "Tech", type: "Accelerator", 
     focus: "Scale-up, B2B, Revenue-generating", stage: "Growth / Series A", match: "85%", 
     portalUrl: "https://www.scaleup.my", 
+    faqUrl: "https://www.scaleup.my", 
     desc: "Pegasus-model accelerator focused on helping companies with proven traction scale their operations regionally." 
   },
   { 
     id: 7, name: "Artem Ventures", ticketSize: 500000, industry: "FinTech", type: "Venture Capital", 
     focus: "ESG, FinTech, InsurTech", stage: "Late Seed / Series A", match: "91%", 
     portalUrl: "https://artem.vc", 
+    faqUrl: "https://artem.vc/about/", 
     desc: "Partnering with founders building sustainable and impactful technology solutions for the Southeast Asian market." 
   },
 ];
