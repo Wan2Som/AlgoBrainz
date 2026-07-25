@@ -4,12 +4,12 @@ import React from 'react';
 
 export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
 const tabs = [
-    { id: 'profile', label: 'My Profile' },
-    { id: 'ai-matching', label: 'AI Matching' },
-    { id: 'roadmap', label: 'Prerequisite Roadmap' },
-  
-    { id: 'chatbot', label: 'AI Chatbot' }
-  ];
+  { id: 'profile', label: 'My Profile' },
+  { id: 'ai-matching', label: 'AI Matching' },
+  { id: 'roadmap', label: 'Prerequisite Roadmap' },
+  { id: 'directory', label: 'Manual Directory (DSA)' }, // <-- Inserted here
+  { id: 'chatbot', label: 'AI Chatbot' }
+];
     
   return (
     <aside className="w-64 bg-slate-900/40 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col z-20 h-screen fixed">
