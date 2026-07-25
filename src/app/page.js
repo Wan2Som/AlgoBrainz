@@ -215,9 +215,8 @@ export default function Dashboard() {
             />
           )}
 
-          {/* NEW DIRECTORY TAB RENDERED HERE */}
           {activeTab === 'directory' && (
-            <InvestorDirectory />
+            <InvestorDirectory onNavigateToProfile={() => setActiveTab('profile')} />
           )}
 
           {activeTab === 'chatbot' && <ChatbotView smeProfile={smeProfile} />}
