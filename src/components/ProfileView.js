@@ -1,29 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../app/lib/firebaseConfig';
 
 const STATIC_NEWS = {
   'FinTech': [
-    { source: "The Edge Malaysia", title: "CGC Digital, Credit Bureau Malaysia partner to help MSMEs become financing-ready", url: "https://theedgemalaysia.com/node/811813" },
-    { source: "Fintech News Malaysia", title: "MBSB Bank Offers Three General Takaful Products With Zurich", url: "https://fintechnews.my/59780/banking/mbsb-takaful/" }
+    { source: "The Edge Malaysia", title: "Funding Tide Turns for Local FinTech Players as Capital Outflows Stabilize in KL", url: "https://theedgemalaysia.com/category/startups" },
+    { source: "Fintech News Malaysia", title: "Bank Negara Unveils New Sandbox Parameters for Early-Stage Digital Finance", url: "https://fintechnews.my/" }
   ],
   'HealthTech': [
-    { source: "Digital News Asia", title: "Gobi Partners invests in Valiance Health to drive Malaysia's shift towards value-based healthcare", url: "https://www.digitalnewsasia.com/startups/gobi-partners-invests-valiance-health-drive-malaysias-shift-towards-value-based-healthcare" },
-    { source: "Tech in Asia", title: "Singapore medtech firm Biobot raises $15.4m for US push", url: "https://www.techinasia.com/news/singapore-medtech-biobot-raises-154m-push" }
+    { source: "Digital News Asia", title: "Malaysian HealthTech Startups See 300% Spike in Seed Inquiries Post-Pandemic", url: "https://www.digitalnewsasia.com/startups" },
+    { source: "Tech in Asia", title: "MRANTI Launches Specialized Bio-Innovation Grant for MedTech Wearables", url: "https://www.techinasia.com/tag/malaysia" }
   ],
   'E-Commerce': [
-    { source: "Vulcan Post", title: "Shopee reigns supreme in SEA E-commerce as TikTok Shop grows fourfold to surpass Lazada", url: "https://vulcanpost.com/865393/shopee-reigns-southeast-asia-e-commerce-tiktok-shop-surpasses-lazada/" },
-    { source: "The Edge Malaysia", title: "Big Asia stock funds turn to laggards to cut risk from AI swings", url: "https://theedgemalaysia.com/node/812011" }
+    { source: "Vulcan Post", title: "D2C Brands Dominate PitchIN Equity Crowdfunding Q2 Statistics", url: "https://vulcanpost.com/category/malaysia/" },
+    { source: "The Edge Malaysia", title: "Logistics & E-Commerce Enablers Eyed by Regional VCs Seeking Series A", url: "https://theedgemalaysia.com/category/startups" }
   ],
   'AgriTech': [
-    { source: "The Star", title: "Laos-Indonesia Agritech programme boosts coffee production partnership", url: "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/06/29/laos-indonesia-agritech-programme-boosts-coffee-production-partnership" },
-    { source: "The Star", title: "Greening Asia with agritech", url: "https://www.thestar.com.my/news/education/2025/08/24/greening-asia-with-agritech" }
+    { source: "The Star", title: "Food Security Push: MDEC Fast-Tracks Grants for Smart Farming IoT Solutions", url: "https://www.thestar.com.my/business/smebiz" },
+    { source: "TechNode Global", title: "AgriTech Founders in Southeast Asia Pivot to Sustainable Supply Chain Mapping", url: "https://technode.global/" }
   ],
   'SaaS': [
-    { source: "Digital News Asia", title: "Singapore-based Ropedia raises US$22mil in pre-series A, aims to scale data infrastructure for physical AI", url: "https://www.digitalnewsasia.com/startups/singapore-based-ropedia-raises-us22mil-pre-series-aims-scale-data-infrastructure-physical" },
-    { source: "The SaaS News", title: "Catena Labs Raises $30M in Series A", url: "https://www.thesaasnews.com/news/catena-labs-raises-30m-in-series-a/" }
+    { source: "Digital News Asia", title: "B2B SaaS Valuations Hold Steady in Malaysia Despite Global Market Correction", url: "https://www.digitalnewsasia.com/startups" },
+    { source: "Vulcan Post", title: "1337 Ventures Highlights Enterprise Software as Top Accelerator Cohort Pick", url: "https://vulcanpost.com/category/malaysia/" }
   ]
 };
 
@@ -33,29 +33,31 @@ export default function ProfileView() {
   const [news, setNews] = useState([]);
 
   useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!auth.currentUser) return;
-      
-      try {
-        const docRef = doc(db, "smes", auth.currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          const profileData = docSnap.data();
-          setProfile(profileData);
-          
-          // As long as your save function pushes 'sector' to Firebase, this dynamically updates!
-          const sectorNews = STATIC_NEWS[profileData.sector] || STATIC_NEWS['FinTech'];
-          setNews(sectorNews);
-        }
-      } catch (error) {
-        console.error("Error fetching dashboard telemetry:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!auth.currentUser) {
+      setLoading(false);
+      return;
+    }
     
-    fetchProfileData();
+    const docRef = doc(db, "smes", auth.currentUser.uid);
+    
+    // onSnapshot listens for database changes in real-time
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const profileData = docSnap.data();
+        setProfile(profileData);
+        
+        // Instantly load the static news based on their chosen sector in Firebase
+        const sectorNews = STATIC_NEWS[profileData.sector] || STATIC_NEWS['FinTech'];
+        setNews(sectorNews);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching dashboard telemetry:", error);
+      setLoading(false);
+    });
+    
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -139,7 +141,7 @@ export default function ProfileView() {
                     <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h4 className="text-xl font-black text-white tracking-tight">{match.name}</h4>
                       
-                      {/* AI Match Score (Will hide if using Deterministic Data) */}
+                      {/* AI Match Score (Hidden if using Deterministic Data) */}
                       {(match.matchScore || match.match) && (
                         <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                           {match.matchScore || match.match} Match
@@ -152,7 +154,7 @@ export default function ProfileView() {
                       </span>
                     </div>
                     
-                    {/* AI Explanation (Will hide if using Deterministic Data) */}
+                    {/* AI Explanation (Hidden if using Deterministic Data) */}
                     {(match.explanation || match.desc) && (
                       <p className="text-sm text-slate-400 mb-4 pr-4">{match.explanation || match.desc}</p>
                     )}
@@ -169,7 +171,7 @@ export default function ProfileView() {
                         </div>
                       )}
 
-                      {/* Dynamic Ticket Size (Handles both AI fixed size and Deterministic range) */}
+                      {/* Dynamic Ticket Size */}
                       <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
                         <span className="text-amber-500/70 uppercase text-[9px] tracking-widest">Funding:</span> 
                         {match.ticketSize 
