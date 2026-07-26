@@ -1,6 +1,6 @@
 // src/utils/searchAlgorithms.js
 
-// 1. Your Base Database (The 50 Real Investors)
+// 1. The 50 Real Investors
 const base50Investors = [
   { id: 1, name: "1337 Ventures", type: "VC", minTicket: 50000, maxTicket: 250000, industry: "Fintech", website: "https://1337.ventures", faq: "https://1337.ventures" },
   { id: 2, name: "Gobi Partners", type: "VC", minTicket: 500000, maxTicket: 5000000, industry: "Technology", website: "https://gobi.vc", faq: "https://gobi.vc" },
@@ -54,7 +54,7 @@ const base50Investors = [
   { id: 50, name: "Genesis Alternative", type: "Venture Debt", minTicket: 1000000, maxTicket: 10000000, industry: "All", website: "https://genesisventures.co", faq: "https://genesisventures.co" }
 ];
 
-// 2. Dynamic Generator to scale to 50 (or 1,000 for stress tests)
+// 2. Dynamic Generator to scale to 50 (or 10,000 for stress tests)
 function generateData(targetSize) {
   let db = [...base50Investors];
   for (let i = base50Investors.length; i < targetSize; i++) {
@@ -76,13 +76,13 @@ function generateData(targetSize) {
   return db.sort((a, b) => a.minTicket - b.minTicket);
 }
 
-// Keep it at 50 for the default frontend UI
+// Keep it at 50 for the default frontend UI, or change to 10000 for the stress test
 export const investorDatabase = generateData(50);
 
-// 3. Linear Range Search Logic
+// 3. Linear Range Search Logic (With DOM Crash Protection)
 export function linearSearchInvestors(data, targetMin, targetMax, selectedIndustry) {
   let operations = 0;
-  let totalMatches = 0; // New counter for exact telemetry
+  let totalMatches = 0;
   const results = [];
   
   for (let i = 0; i < data.length; i++) {
@@ -94,9 +94,8 @@ export function linearSearchInvestors(data, targetMin, targetMax, selectedIndust
     const matchesIndustry = selectedIndustry === 'All' || inv.industry === selectedIndustry;
     
     if (matchesTicket && matchesIndustry) {
-      totalMatches++; // Always count the match
-      
-      // DOM Crash Protection: Only send max 50 items to the UI
+      totalMatches++;
+      // Only push a maximum of 50 items to avoid freezing the UI
       if (results.length < 50) {
         results.push(inv);
       }
@@ -114,11 +113,12 @@ class Node {
   }
 }
 
-// 5. Binary Search Tree Range Search Logic
+// 5. Binary Search Tree Range Search Logic (With DOM Crash Protection)
 export class BST {
   constructor() {
     this.root = null;
   }
+  
   insert(investor) {
     const newNode = new Node(investor);
     if (this.root === null) this.root = newNode;
@@ -136,7 +136,7 @@ export class BST {
     }
   }
 
- // O(log n + k) Range Search (Inside your BST class)
+  // O(log n + k) Range Search
   rangeSearch(node, targetMin, targetMax, selectedIndustry, ops = { count: 0, matches: 0 }, results = []) {
     if (node === null) return;
     ops.count++;
@@ -151,9 +151,8 @@ export class BST {
     const matchesIndustry = selectedIndustry === 'All' || node.investor.industry === selectedIndustry;
 
     if (matchesTicket && matchesIndustry) {
-      ops.matches++; // Always count the match
-      
-      // DOM Crash Protection: Only send max 50 items to the UI
+      ops.matches++;
+      // Only push a maximum of 50 items to avoid freezing the UI
       if (results.length < 50) {
         results.push(node.investor);
       }
@@ -166,6 +165,7 @@ export class BST {
 
     return { results, operations: ops.count, totalMatches: ops.matches, type: 'BST Range Search O(log n + k)' };
   }
+}
 
 export const investorTree = new BST();
 
