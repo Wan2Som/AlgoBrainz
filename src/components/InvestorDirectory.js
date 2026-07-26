@@ -19,7 +19,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
       setSearchResult(linearSearchInvestors(investorDatabase, min, max, industry));
     } else {
       const res = investorTree.rangeSearch(investorTree.root, min, max, industry);
-      setSearchResult(res || { results: [], operations: 1, totalMatches: 0, type: 'BST Range Search O(log n + k)' });
+      setSearchResult(res || { results: [], operations: 1, type: 'BST Range Search O(log n + k)' });
     }
   };
 
@@ -62,8 +62,6 @@ export default function InvestorDirectory({ onSaveToProfile }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Industry Vertical</label>
-              
-              {/* HARDCODED DROPDOWN TO MATCH YOUR SCREENSHOT */}
               <select 
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
@@ -71,10 +69,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
               >
                 <option value="All">All Industries</option>
                 <option value="FinTech">FinTech</option>
-                <option value="HealthTech">HealthTech</option>
-                <option value="E-Commerce">E-Commerce</option>
-                <option value="AgriTech">AgriTech</option>
-                <option value="SaaS">SaaS</option>
+                <option value="Tech">Tech / SaaS</option>
+                <option value="Creative Tech">Creative Tech / Gaming</option>
               </select>
             </div>
 
@@ -145,8 +141,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Matches Extracted</span>
-              <span className={`text-3xl font-black ${searchResult.totalMatches > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                {searchResult.totalMatches} NODES
+              <span className={`text-3xl font-black ${searchResult.results.length > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                {searchResult.results.length} NODES
               </span>
             </div>
           </div>
@@ -166,7 +162,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                       <div className="flex flex-wrap items-center gap-3 mb-4">
                         <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
                         <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest px-2.5 py-1 rounded">
-                          {item.match || "92%"} MATCH
+                          {item.match} MATCH
                         </span>
                         <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
                           {item.type}
@@ -174,7 +170,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                       </div>
                       
                       <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                        {item.desc || "Strategic venture capital and investment funding for scalable startups in the Southeast Asian region."}
+                        {item.desc}
                       </p>
                       
                       <div className="flex flex-wrap gap-4">
@@ -184,13 +180,11 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                         </div>
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-slate-500 font-bold uppercase tracking-wider">Stage:</span> 
-                          <span className="text-slate-200 font-medium">{item.stage || "Seed / Growth"}</span>
+                          <span className="text-slate-200 font-medium">{item.stage}</span>
                         </div>
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-amber-500/70 font-bold uppercase tracking-wider">Ticket:</span> 
-                          <span className="text-amber-500 font-black">
-                            RM {item.minTicket?.toLocaleString()} - RM {item.maxTicket?.toLocaleString()}
-                          </span>
+                          <span className="text-amber-500 font-black">RM {item.ticketSize.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
