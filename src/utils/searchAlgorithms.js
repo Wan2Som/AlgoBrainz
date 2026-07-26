@@ -65,7 +65,7 @@ export function getClosestFallback(data, searchMin, searchMax, selectedIndustry)
 }
 
 // --- ALGORITHM 1: LINEAR SEARCH O(N) ---
-export function linearSearch(data, minInput, maxInput, selectedIndustry) {
+export function linearSearchInvestors(data, minInput, maxInput, selectedIndustry) {
   let operations = 0;
   const results = [];
   
@@ -159,3 +159,12 @@ export function balancedInsertionOrder(data) {
   const rightHalf = data.slice(mid + 1);
   return [root, ...balancedInsertionOrder(leftHalf), ...balancedInsertionOrder(rightHalf)];
 }
+
+// --- INITIALIZE AND EXPORT THE BALANCED TREE ---
+export const investorTree = new BinarySearchTree();
+
+// Balance the data before inserting it to ensure O(log N) depth
+const balancedData = balancedInsertionOrder(investorDatabase);
+
+// Insert the balanced data into the tree
+balancedData.forEach(inv => investorTree.insert(inv));
