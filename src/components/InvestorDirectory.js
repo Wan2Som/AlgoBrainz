@@ -1,17 +1,15 @@
 "use client";
 
 import React, { useState } from 'react';
-// Added getClosestFallback to your imports
 import { investorDatabase, investorTree, linearSearchInvestors, getClosestFallback } from '../utils/searchAlgorithms';
 
 export default function InvestorDirectory({ onSaveToProfile }) {
-  // 1. Updated default states to ensure results on first load
   const [minTicket, setMinTicket] = useState(50000);
   const [maxTicket, setMaxTicket] = useState(2000000);
   const [industry, setIndustry] = useState('All');
   const [searchResult, setSearchResult] = useState(null);
   const [step, setStep] = useState(1);
-  const [isFallback, setIsFallback] = useState(false); // Added fallback state tracking
+  const [isFallback, setIsFallback] = useState(false);
 
   const executeSearch = (type) => {
     const min = parseInt(minTicket) || 0;
@@ -22,14 +20,13 @@ export default function InvestorDirectory({ onSaveToProfile }) {
     let res;
     if (type === 'Linear') {
       res = linearSearchInvestors(investorDatabase, min, max, industry);
-      res.type = 'Linear Search O(N)'; // Standardizing the display name
+      res.type = 'Linear Search O(N)';
     } else {
       res = investorTree.rangeSearch(investorTree.root, min, max, industry);
       res = res || { results: [], operations: 1 };
       res.type = 'BST Range Search O(log N + K)';
     }
 
-    // 2. Fallback Logic: If 0 results, grab the 3 closest matches
     if (res.results.length === 0) {
       const fallbackData = getClosestFallback(investorDatabase, min, max, industry);
       setSearchResult({ 
@@ -46,7 +43,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
 
   const handleApplyMatches = () => {
     if (searchResult && searchResult.results.length > 0) {
-      onSaveToProfile(searchResult.results);
+      // Passes both matches and current industry filter to update profile news
+      onSaveToProfile(searchResult.results, industry);
     }
   };
 
@@ -185,7 +183,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
             Algorithmic Recommended Matches
           </h3>
 
-          {/* 3. Updated List of Matched Cards (Replaced missing data fields with actual DB fields) */}
+          {/* List of Matched Cards */}
           <div className="space-y-6">
             {searchResult.results.length > 0 ? (
               searchResult.results.map((item) => (
@@ -193,21 +191,18 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                   <div className="flex flex-col md:flex-row justify-between items-start gap-8">
                     <div className="flex-1">
                       
-                      <div className="flex flex-wrap items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
-                          {/* Replaced 'item.type' with 'item.industry' pill */}
-                          <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
-                            {item.industry}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
+                        <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
+                          {item.industry}
+                        </span>
+                      </div>
                       
                       <div className="flex flex-wrap gap-4 mt-6">
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-slate-500 font-bold uppercase tracking-wider">Industry:</span> 
                           <span className="text-slate-200 font-medium">{item.industry}</span>
                         </div>
-                        {/* Adjusted Ticket Size UI to show the Range */}
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-amber-500/70 font-bold uppercase tracking-wider">Funding Range:</span> 
                           <span className="text-amber-500 font-black">
@@ -221,7 +216,6 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                 </div>
               ))
             ) : (
-              // This block will technically never render due to the Fallback, but good to keep as a safety net!
               <div className="bg-[#131B2A] border border-red-500/20 rounded-2xl p-10 text-center">
                 <h4 className="text-xl font-black text-white mb-2">No Matching Entities</h4>
                 <p className="text-slate-500">The traversal completed in {searchResult.operations} steps but found zero records within your range/industry filter.</p>
