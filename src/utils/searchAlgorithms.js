@@ -82,6 +82,7 @@ export const investorDatabase = generateData(50);
 // 3. Linear Range Search Logic
 export function linearSearchInvestors(data, targetMin, targetMax, selectedIndustry) {
   let operations = 0;
+  let totalMatches = 0; // New counter for exact telemetry
   const results = [];
   
   for (let i = 0; i < data.length; i++) {
@@ -93,10 +94,15 @@ export function linearSearchInvestors(data, targetMin, targetMax, selectedIndust
     const matchesIndustry = selectedIndustry === 'All' || inv.industry === selectedIndustry;
     
     if (matchesTicket && matchesIndustry) {
-      results.push(inv);
+      totalMatches++; // Always count the match
+      
+      // DOM Crash Protection: Only send max 50 items to the UI
+      if (results.length < 50) {
+        results.push(inv);
+      }
     }
   }
-  return { results, operations, type: 'Linear Search O(n)' };
+  return { results, operations, totalMatches, type: 'Linear Search O(n)' };
 }
 
 // 4. Binary Search Tree Nodes
@@ -130,8 +136,8 @@ export class BST {
     }
   }
 
-  // O(log n + k) Range Search
-  rangeSearch(node, targetMin, targetMax, selectedIndustry, ops = { count: 0 }, results = []) {
+ // O(log n + k) Range Search (Inside your BST class)
+  rangeSearch(node, targetMin, targetMax, selectedIndustry, ops = { count: 0, matches: 0 }, results = []) {
     if (node === null) return;
     ops.count++;
 
@@ -145,7 +151,12 @@ export class BST {
     const matchesIndustry = selectedIndustry === 'All' || node.investor.industry === selectedIndustry;
 
     if (matchesTicket && matchesIndustry) {
-      results.push(node.investor);
+      ops.matches++; // Always count the match
+      
+      // DOM Crash Protection: Only send max 50 items to the UI
+      if (results.length < 50) {
+        results.push(node.investor);
+      }
     }
 
     // Only explore right if it's possible to find values larger than current node that still match
@@ -153,9 +164,8 @@ export class BST {
       this.rangeSearch(node.right, targetMin, targetMax, selectedIndustry, ops, results);
     }
 
-    return { results, operations: ops.count, type: 'BST Range Search O(log n + k)' };
+    return { results, operations: ops.count, totalMatches: ops.matches, type: 'BST Range Search O(log n + k)' };
   }
-}
 
 export const investorTree = new BST();
 
