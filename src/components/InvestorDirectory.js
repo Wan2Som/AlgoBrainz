@@ -1,25 +1,46 @@
 "use client";
 
 import React, { useState } from 'react';
-import { investorDatabase, investorTree, linearSearchInvestors } from '../utils/searchAlgorithms';
+// Added getClosestFallback to your imports
+import { investorDatabase, investorTree, linearSearchInvestors, getClosestFallback } from '../utils/searchAlgorithms';
 
 export default function InvestorDirectory({ onSaveToProfile }) {
-  const [minTicket, setMinTicket] = useState('');
-  const [maxTicket, setMaxTicket] = useState('');
+  // 1. Updated default states to ensure results on first load
+  const [minTicket, setMinTicket] = useState(50000);
+  const [maxTicket, setMaxTicket] = useState(2000000);
   const [industry, setIndustry] = useState('All');
   const [searchResult, setSearchResult] = useState(null);
   const [step, setStep] = useState(1);
+  const [isFallback, setIsFallback] = useState(false); // Added fallback state tracking
 
   const executeSearch = (type) => {
     const min = parseInt(minTicket) || 0;
     const max = parseInt(maxTicket) || Infinity;
     
     setStep(2);
+    
+    let res;
     if (type === 'Linear') {
-      setSearchResult(linearSearchInvestors(investorDatabase, min, max, industry));
+      res = linearSearchInvestors(investorDatabase, min, max, industry);
+      res.type = 'Linear Search O(N)'; // Standardizing the display name
     } else {
-      const res = investorTree.rangeSearch(investorTree.root, min, max, industry);
-      setSearchResult(res || { results: [], operations: 1, type: 'BST Range Search O(log n + k)' });
+      res = investorTree.rangeSearch(investorTree.root, min, max, industry);
+      res = res || { results: [], operations: 1 };
+      res.type = 'BST Range Search O(log N + K)';
+    }
+
+    // 2. Fallback Logic: If 0 results, grab the 3 closest matches
+    if (res.results.length === 0) {
+      const fallbackData = getClosestFallback(investorDatabase, min, max, industry);
+      setSearchResult({ 
+        results: fallbackData, 
+        operations: res.operations, 
+        type: res.type 
+      });
+      setIsFallback(true);
+    } else {
+      setSearchResult(res);
+      setIsFallback(false);
     }
   };
 
@@ -30,11 +51,12 @@ export default function InvestorDirectory({ onSaveToProfile }) {
   };
 
   const resetSearch = () => {
-    setMinTicket('');
-    setMaxTicket('');
+    setMinTicket(50000);
+    setMaxTicket(2000000);
     setIndustry('All');
     setSearchResult(null);
     setStep(1);
+    setIsFallback(false);
   };
 
   return (
@@ -63,7 +85,6 @@ export default function InvestorDirectory({ onSaveToProfile }) {
             <div>
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Industry Vertical</label>
               
-              {/* UPDATED DROPDOWN TO MATCH YOUR 5 INDUSTRIES */}
               <select 
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
@@ -137,7 +158,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Algorithm Used</span>
-              <span className="text-2xl font-black text-amber-500">{searchResult.type}</span>
+              <span className="text-xl font-black text-amber-500">{searchResult.type}</span>
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Traversal Steps</span>
@@ -145,57 +166,73 @@ export default function InvestorDirectory({ onSaveToProfile }) {
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Matches Extracted</span>
-              <span className={`text-3xl font-black ${searchResult.results.length > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+              <span className={`text-3xl font-black ${isFallback ? 'text-amber-500' : 'text-emerald-500'}`}>
                 {searchResult.results.length} NODES
               </span>
             </div>
           </div>
+
+          {/* Fallback Notice Banner */}
+          {isFallback && (
+            <div className="bg-amber-500/10 border border-amber-500/40 rounded-xl p-4 mb-6 text-amber-500 text-sm font-bold flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              NO EXACT MATCHES FOUND IN RANGE. DISPLAYING CLOSEST ALTERNATIVES.
+            </div>
+          )}
 
           <h3 className="text-amber-500 font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-3">
             <span className="w-2.5 h-2.5 bg-amber-500 rounded-full"></span> 
             Algorithmic Recommended Matches
           </h3>
 
-          {/* List of Matched Cards */}
+          {/* 3. Updated List of Matched Cards (Replaced missing data fields with actual DB fields) */}
           <div className="space-y-6">
             {searchResult.results.length > 0 ? (
               searchResult.results.map((item) => (
-                <div key={item.id} className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-8 shadow-xl">
+                <div key={item.id} className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-8 shadow-xl hover:border-slate-700 transition-colors">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-8">
                     <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-4">
-                        <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
-                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest px-2.5 py-1 rounded">
-                          {item.match} MATCH
-                        </span>
-                        <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
-                          {item.type}
-                        </span>
+                      
+                      <div className="flex flex-wrap items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
+                          {/* Replaced 'item.type' with 'item.industry' pill */}
+                          <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
+                            {item.industry}
+                          </span>
+                        </div>
+                        
+                        {/* The new "Visit Website" Button */}
+                        <a 
+                          href={item.portalUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="bg-slate-800 text-slate-300 border border-slate-700 text-xs font-black tracking-widest px-4 py-2 rounded uppercase hover:bg-amber-500 hover:text-[#0B1120] transition-colors"
+                        >
+                          Visit Portal ↗
+                        </a>
                       </div>
                       
-                      <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                        {item.desc}
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-4">
+                      <div className="flex flex-wrap gap-4 mt-6">
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-slate-500 font-bold uppercase tracking-wider">Industry:</span> 
                           <span className="text-slate-200 font-medium">{item.industry}</span>
                         </div>
+                        {/* Adjusted Ticket Size UI to show the Range */}
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
-                          <span className="text-slate-500 font-bold uppercase tracking-wider">Stage:</span> 
-                          <span className="text-slate-200 font-medium">{item.stage}</span>
-                        </div>
-                        <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
-                          <span className="text-amber-500/70 font-bold uppercase tracking-wider">Ticket:</span> 
-                          <span className="text-amber-500 font-black">RM {item.ticketSize.toLocaleString()}</span>
+                          <span className="text-amber-500/70 font-bold uppercase tracking-wider">Funding Range:</span> 
+                          <span className="text-amber-500 font-black">
+                            RM {item.minTicket.toLocaleString()} - RM {item.maxTicket.toLocaleString()}
+                          </span>
                         </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
               ))
             ) : (
+              // This block will technically never render due to the Fallback, but good to keep as a safety net!
               <div className="bg-[#131B2A] border border-red-500/20 rounded-2xl p-10 text-center">
                 <h4 className="text-xl font-black text-white mb-2">No Matching Entities</h4>
                 <p className="text-slate-500">The traversal completed in {searchResult.operations} steps but found zero records within your range/industry filter.</p>
