@@ -1,97 +1,89 @@
-// src/utils/searchAlgorithms.js
+/**
+ * searchAlgorithms.js
+ * Includes the 31-item database, BST implementation, Linear Search, 
+ * and the Fallback Helper for deterministic O(log N + K) vs O(N) comparisons.
+ */
 
 export const investorDatabase = [
-  { 
-    id: 1, name: "NEXEA Angel Network", ticketSize: 50000, industry: "FinTech", type: "Angel Syndicate", 
-    focus: "Tech, B2B SaaS, HealthTech", stage: "Pre-Seed", match: "88%", 
-    portalUrl: "https://www.nexea.co", 
-    faqUrl: "https://www.nexea.co/angel-investors-malaysia/", 
-    desc: "Early stage angel investment network providing mentorship and initial capital for scalable tech startups." 
-  },
-  { 
-    id: 2, name: "1337 Ventures", ticketSize: 100000, industry: "FinTech", type: "Venture Capital & Accelerator", 
-    focus: "FinTech, SaaS, Pre-seed Tech", stage: "Ideation / Pre-Seed", match: "95%", 
-    portalUrl: "https://1337.ventures/", 
-    faqUrl: "https://1337.ventures/about/", 
-    desc: "Leading pre-seed investor specializing in early-stage fintech through their structured accelerator programs." 
-  },
-  { 
-    id: 3, name: "Cradle Fund (CIP Spark)", ticketSize: 150000, industry: "SaaS", type: "Government Grant", 
-    focus: "Pre-seed, early-stage tech, MVP development", stage: "Ideation / MVP Concept", match: "98%", 
-    portalUrl: "https://cradle.com.my", 
-    faqUrl: "https://cradle.com.my/cip-spark/", 
-    desc: "Perfect conditional grant for Malaysian tech startups at MVP phase to develop and validate early-stage innovations." 
-  },
-  { 
-    id: 4, name: "MDEC (Digital Content Grant)", ticketSize: 200000, industry: "E-Commerce", type: "Government Grant", 
-    focus: "Digital Media, Gaming, Animation", stage: "MVP / Early Traction", match: "92%", 
-    portalUrl: "https://mdec.my", 
-    faqUrl: "https://mdec.my/grants",
-    desc: "Specialized grant supporting local digital content creators and tech developers in commercializing their IPs." 
-  },
-  { 
-    id: 5, name: "Sunway iLabs", ticketSize: 250000, industry: "HealthTech", type: "Corporate VC", 
-    focus: "Smart Cities, EdTech, PropTech", stage: "Early Traction", match: "90%", 
-    portalUrl: "https://innovationlabs.sunway.edu.my", 
-    faqUrl: "https://innovationlabs.sunway.edu.my/about-us/", 
-    desc: "Corporate venture arm providing capital and access to the vast Sunway ecosystem as a testbed for startups." 
-  },
-  { 
-    id: 6, name: "ScaleUp Malaysia", ticketSize: 300000, industry: "SaaS", type: "Accelerator", 
-    focus: "Scale-up, B2B, Revenue-generating", stage: "Growth / Series A", match: "85%", 
-    portalUrl: "https://www.scaleup.my", 
-    faqUrl: "https://www.scaleup.my", 
-    desc: "Pegasus-model accelerator focused on helping companies with proven traction scale their operations regionally." 
-  },
-  { 
-    id: 7, name: "Artem Ventures", ticketSize: 500000, industry: "AgriTech", type: "Venture Capital", 
-    focus: "ESG, FinTech, InsurTech", stage: "Late Seed / Series A", match: "91%", 
-    portalUrl: "https://artem.vc", 
-    faqUrl: "https://artem.vc/about/", 
-    desc: "Partnering with founders building sustainable and impactful technology solutions for the Southeast Asian market." 
-  },
-  { 
-    id: 8, name: "Gobi Partners", ticketSize: 1000000, industry: "E-Commerce", type: "Venture Capital", 
-    focus: "E-Commerce, Consumer Tech", stage: "Series A", match: "89%", 
-    portalUrl: "https://gobi.vc", 
-    faqUrl: "https://gobi.vc/contact", 
-    desc: "Pan-Asian venture capital firm focusing on emerging markets, digital economy, and e-commerce growth." 
-  },
-  { 
-    id: 9, name: "Vynn Capital", ticketSize: 1500000, industry: "AgriTech", type: "Venture Capital", 
-    focus: "Supply Chain, AgriTech, Mobility", stage: "Series A", match: "87%", 
-    portalUrl: "https://vynncapital.com", 
-    faqUrl: "https://vynncapital.com/insights/", 
-    desc: "Early-stage venture capital firm focusing heavily on supply chain logistics and agricultural technology." 
-  },
-  { 
-    id: 10, name: "OSK Ventures", ticketSize: 2000000, industry: "HealthTech", type: "Venture Capital", 
-    focus: "Enterprise Tech, HealthTech", stage: "Series A / Series B", match: "84%", 
-    portalUrl: "https://oskvi.com", 
-    faqUrl: "https://oskvi.com/funds.php", 
-    desc: "Strategic investment firm supporting high-growth healthcare and enterprise technology companies across the region." 
-  }
-];
+  // RM 50,000 Tier
+  { id: 1, name: "NEXEA Angel Network", industry: "FinTech", minTicket: 50000, maxTicket: 1000000, portalUrl: "https://www.nexea.co" },
+  { id: 2, name: "Kinesys Group", industry: "HealthTech", minTicket: 50000, maxTicket: 200000, portalUrl: "https://example.com/kinesys" },
+  { id: 3, name: "Cradle CIP Spark", industry: "SaaS", minTicket: 50000, maxTicket: 150000, portalUrl: "https://www.cradle.com.my/cip-spark/" },
+  { id: 4, name: "Quest Ventures", industry: "E-Commerce", minTicket: 50000, maxTicket: 500000, portalUrl: "https://www.questventures.com" },
+  { id: 5, name: "Bioeconomy Corp Grant", industry: "AgriTech", minTicket: 50000, maxTicket: 500000, portalUrl: "https://example.com/bioeconomy" },
+  
+  // RM 100,000 Tier
+  { id: 6, name: "Gobi Partners (Seed)", industry: "E-Commerce", minTicket: 100000, maxTicket: 1000000, portalUrl: "https://gobi.vc" },
+  { id: 7, name: "1337 Ventures", industry: "FinTech", minTicket: 100000, maxTicket: 500000, portalUrl: "https://1337ventures.com" },
+  { id: 8, name: "TinkBig Venture", industry: "SaaS", minTicket: 100000, maxTicket: 300000, portalUrl: "https://example.com/tinkbig" },
+  { id: 9, name: "Artem Ventures", industry: "HealthTech", minTicket: 100000, maxTicket: 500000, portalUrl: "https://artem.vc" },
+  { id: 10, name: "Sunway iLabs", industry: "AgriTech", minTicket: 100000, maxTicket: 250000, portalUrl: "https://innovationlabs.sunway.edu.my" },
 
-// Linear Range & Industry Search
-export function linearSearchInvestors(data, minTicket, maxTicket, selectedIndustry) {
+  // RM 250,000 Tier
+  { id: 11, name: "500 Global (Malaysia)", industry: "SaaS", minTicket: 250000, maxTicket: 1500000, portalUrl: "https://500.co" },
+  { id: 12, name: "KK Fund", industry: "FinTech", minTicket: 250000, maxTicket: 800000, portalUrl: "https://kkfund.co" },
+  { id: 13, name: "Ficus Capital", industry: "HealthTech", minTicket: 250000, maxTicket: 1000000, portalUrl: "https://ficus.vc" },
+  { id: 14, name: "Netrove Partners", industry: "E-Commerce", minTicket: 250000, maxTicket: 750000, portalUrl: "https://netrove.com" },
+  { id: 15, name: "AgFunder Asia", industry: "AgriTech", minTicket: 250000, maxTicket: 2000000, portalUrl: "https://agfunder.com" },
+
+  // RM 500,000 Tier
+  { id: 16, name: "Cradle Seed Ventures", industry: "FinTech", minTicket: 500000, maxTicket: 2000000, portalUrl: "https://cradle.com.my" },
+  { id: 17, name: "Vertex Ventures", industry: "SaaS", minTicket: 500000, maxTicket: 3000000, portalUrl: "https://vertexventures.sg" },
+  { id: 18, name: "Jungle Ventures", industry: "E-Commerce", minTicket: 500000, maxTicket: 2500000, portalUrl: "https://jungle.vc" },
+  { id: 19, name: "Mavcap", industry: "HealthTech", minTicket: 500000, maxTicket: 3500000, portalUrl: "https://mavcap.com" },
+  { id: 20, name: "Bintang Capital", industry: "AgriTech", minTicket: 500000, maxTicket: 4000000, portalUrl: "https://bintangcapital.com" },
+
+  // RM 1,000,000 Tier
+  { id: 21, name: "Vickers Venture", industry: "HealthTech", minTicket: 1000000, maxTicket: 5000000, portalUrl: "https://vickersventure.com" },
+  { id: 22, name: "Insignia Ventures", industry: "FinTech", minTicket: 1000000, maxTicket: 4000000, portalUrl: "https://insignia.vc" },
+  { id: 23, name: "Openspace Ventures", industry: "SaaS", minTicket: 1000000, maxTicket: 5000000, portalUrl: "https://openspace.vc" },
+  { id: 24, name: "Monk's Hill", industry: "E-Commerce", minTicket: 1000000, maxTicket: 6000000, portalUrl: "https://monkshill.com" },
+  { id: 25, name: "Navis Capital", industry: "AgriTech", minTicket: 1000000, maxTicket: 8000000, portalUrl: "https://naviscapital.com" },
+
+  // RM 2,000,000+ Tier
+  { id: 26, name: "Catcha Group", industry: "SaaS", minTicket: 2000000, maxTicket: 10000000, portalUrl: "https://catchagroup.com" },
+  { id: 27, name: "Kazanah Nasional", industry: "FinTech", minTicket: 2000000, maxTicket: 15000000, portalUrl: "https://khazanah.com.my" },
+  { id: 28, name: "KWAP", industry: "HealthTech", minTicket: 2000000, maxTicket: 20000000, portalUrl: "https://kwap.gov.my" },
+  { id: 29, name: "EPF Private Equity", industry: "E-Commerce", minTicket: 2500000, maxTicket: 25000000, portalUrl: "https://kwsp.gov.my" },
+  { id: 30, name: "Creador", industry: "SaaS", minTicket: 3000000, maxTicket: 30000000, portalUrl: "https://creador.com" },
+  { id: 31, name: "Affinity Equity", industry: "AgriTech", minTicket: 5000000, maxTicket: 50000000, portalUrl: "https://affinityequity.com" }
+].sort((a, b) => a.minTicket - b.minTicket); // Sorted numerically for the BST balancer
+
+// --- HELPER: FALLBACK LOGIC ---
+export function getClosestFallback(data, searchMin, searchMax, selectedIndustry) {
+  const industryPool = selectedIndustry === 'All' 
+    ? data 
+    : data.filter(inv => inv.industry === selectedIndustry);
+
+  const sortedByCloseness = [...industryPool].sort((a, b) => {
+    const diffA = Math.abs(a.minTicket - searchMax);
+    const diffB = Math.abs(b.minTicket - searchMax);
+    return diffA - diffB;
+  });
+
+  return sortedByCloseness.slice(0, 3);
+}
+
+// --- ALGORITHM 1: LINEAR SEARCH O(N) ---
+export function linearSearch(data, minInput, maxInput, selectedIndustry) {
   let operations = 0;
   const results = [];
   
   for (let i = 0; i < data.length; i++) {
     operations++;
-    const matchesTicket = data[i].ticketSize >= minTicket && data[i].ticketSize <= maxTicket;
-    const matchesIndustry = selectedIndustry === 'All' || data[i].industry === selectedIndustry;
-    
-    if (matchesTicket && matchesIndustry) {
-      results.push(data[i]);
+    const inv = data[i];
+    const industryMatch = selectedIndustry === 'All' || inv.industry === selectedIndustry;
+    const rangeOverlap = inv.minTicket <= maxInput && inv.maxTicket >= minInput;
+
+    if (industryMatch && rangeOverlap) {
+      results.push(inv);
     }
   }
-  return { results, operations, type: 'Linear Search O(n)' };
+  return { results, operations };
 }
 
-// Binary Search Tree with In-Order Traversal for Range Queries
-class Node {
+// --- ALGORITHM 2: BINARY SEARCH TREE O(log N + K) ---
+export class TreeNode {
   constructor(investor) {
     this.investor = investor;
     this.left = null;
@@ -99,50 +91,71 @@ class Node {
   }
 }
 
-export class BST {
+export class BinarySearchTree {
   constructor() {
     this.root = null;
   }
+
   insert(investor) {
-    const newNode = new Node(investor);
-    if (this.root === null) this.root = newNode;
-    else this.insertNode(this.root, newNode);
-  }
-  insertNode(node, newNode) {
-    if (newNode.investor.ticketSize < node.investor.ticketSize) {
-      if (node.left === null) node.left = newNode;
-      else this.insertNode(node.left, newNode);
-    } else {
-      if (node.right === null) node.right = newNode;
-      else this.insertNode(node.right, newNode);
+    const newNode = new TreeNode(investor);
+    if (!this.root) {
+      this.root = newNode;
+      return;
+    }
+    let current = this.root;
+    while (true) {
+      if (investor.minTicket < current.investor.minTicket) {
+        if (!current.left) {
+          current.left = newNode;
+          break;
+        }
+        current = current.left;
+      } else {
+        if (!current.right) {
+          current.right = newNode;
+          break;
+        }
+        current = current.right;
+      }
     }
   }
 
-  // BST Range Search O(log n + k)
-  rangeSearch(node, minTicket, maxTicket, selectedIndustry, ops = { count: 0 }, results = []) {
-    if (node === null) return;
-    ops.count++;
+  // O(log N + K) Range Query
+  rangeSearch(node, minInput, maxInput, selectedIndustry, operations = { count: 0 }, results = []) {
+    if (!node) return { results, operations: operations.count };
 
-    if (minTicket < node.investor.ticketSize) {
-      this.rangeSearch(node.left, minTicket, maxTicket, selectedIndustry, ops, results);
+    operations.count++;
+    
+    // Check Overlap
+    const inv = node.investor;
+    const industryMatch = selectedIndustry === 'All' || inv.industry === selectedIndustry;
+    const rangeOverlap = inv.minTicket <= maxInput && inv.maxTicket >= minInput;
+
+    if (industryMatch && rangeOverlap) {
+      results.push(inv);
     }
 
-    const matchesTicket = node.investor.ticketSize >= minTicket && node.investor.ticketSize <= maxTicket;
-    const matchesIndustry = selectedIndustry === 'All' || node.investor.industry === selectedIndustry;
-
-    if (matchesTicket && matchesIndustry) {
-      results.push(node.investor);
+    // Traverse Left: Only if there's a possibility of valid minTickets to the left
+    if (minInput < inv.minTicket) {
+      this.rangeSearch(node.left, minInput, maxInput, selectedIndustry, operations, results);
     }
 
-    if (maxTicket > node.investor.ticketSize) {
-      this.rangeSearch(node.right, minTicket, maxTicket, selectedIndustry, ops, results);
+    // Traverse Right: We always check right because minTickets scale upwards
+    // As long as the node's minTicket isn't astronomically higher than our maxInput
+    if (inv.minTicket <= maxInput) {
+      this.rangeSearch(node.right, minInput, maxInput, selectedIndustry, operations, results);
     }
 
-    return { results, operations: ops.count, type: 'BST Range Search O(log n + k)' };
+    return { results, operations: operations.count };
   }
 }
 
-export const investorTree = new BST();
-
-const insertionOrder = [4, 1, 7, 0, 2, 5, 8, 3, 6, 9]; 
-insertionOrder.forEach(i => investorTree.insert(investorDatabase[i]));
+// --- HELPER: PERFECT BST BALANCER ---
+export function balancedInsertionOrder(data) {
+  if (data.length === 0) return [];
+  const mid = Math.floor(data.length / 2);
+  const root = data[mid];
+  const leftHalf = data.slice(0, mid);
+  const rightHalf = data.slice(mid + 1);
+  return [root, ...balancedInsertionOrder(leftHalf), ...balancedInsertionOrder(rightHalf)];
+}
