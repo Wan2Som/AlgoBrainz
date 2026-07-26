@@ -6,24 +6,24 @@ import { db, auth } from '../app/lib/firebaseConfig';
 
 const STATIC_NEWS = {
   'FinTech': [
-    { source: "The Edge Malaysia", title: "Funding Tide Turns for Local FinTech Players as Capital Outflows Stabilize in KL", url: "https://theedgemalaysia.com/category/startups" },
-    { source: "The Star", title: "Bank Negara Unveils New Sandbox Parameters for Early-Stage Digital Finance", url: "https://www.thestar.com.my/business/smebiz" }
+    { source: "The Edge Malaysia", title: "CGC Digital, Credit Bureau Malaysia partner to help MSMEs become financing-ready", url: "https://theedgemalaysia.com/node/811813" },
+    { source: "Fintech News Malaysia", title: "MBSB Bank Offers Three General Takaful Products With Zurich", url: "https://fintechnews.my/59780/banking/mbsb-takaful/" }
   ],
   'HealthTech': [
-    { source: "Digital News Asia", title: "Malaysian HealthTech Startups See 300% Spike in Seed Inquiries Post-Pandemic", url: "https://www.digitalnewsasia.com/startups" },
-    { source: "Tech in Asia", title: "MRANTI Launches Specialized Bio-Innovation Grant for MedTech Wearables", url: "https://www.techinasia.com/tag/malaysia" }
+    { source: "Digital News Asia", title: "Gobi Partners invests in Valiance Health to drive Malaysia's shift towards value-based healthcare", url: "https://www.digitalnewsasia.com/startups/gobi-partners-invests-valiance-health-drive-malaysias-shift-towards-value-based-healthcare" },
+    { source: "Tech in Asia", title: "Singapore medtech firm Biobot raises $15.4m for US push", url: "https://www.techinasia.com/news/singapore-medtech-biobot-raises-154m-push" }
   ],
   'E-Commerce': [
-    { source: "Vulcan Post", title: "D2C Brands Dominate PitchIN Equity Crowdfunding Q2 Statistics", url: "https://vulcanpost.com/category/malaysia/" },
-    { source: "The Edge Malaysia", title: "Logistics & E-Commerce Enablers Eyed by Regional VCs Seeking Series A", url: "https://theedgemalaysia.com/category/startups" }
+    { source: "Vulcan Post", title: "Shopee reigns supreme in SEA E-commerce as TikTok Shop grows fourfold to surpass Lazada", url: "https://vulcanpost.com/865393/shopee-reigns-southeast-asia-e-commerce-tiktok-shop-surpasses-lazada/" },
+    { source: "The Edge Malaysia", title: "Big Asia stock funds turn to laggards to cut risk from AI swings", url: "https://theedgemalaysia.com/node/812011" }
   ],
   'AgriTech': [
-    { source: "The Star", title: "Food Security Push: MDEC Fast-Tracks Grants for Smart Farming IoT Solutions", url: "https://www.thestar.com.my/business/smebiz" },
-    { source: "TechNode Global", title: "AgriTech Founders in Southeast Asia Pivot to Sustainable Supply Chain Mapping", url: "https://technode.global/" }
+    { source: "The Star", title: "Laos-Indonesia Agritech programme boosts coffee production partnership", url: "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/06/29/laos-indonesia-agritech-programme-boosts-coffee-production-partnership" },
+    { source: "The Star", title: "Greening Asia with agritech", url: "https://www.thestar.com.my/news/education/2025/08/24/greening-asia-with-agritech" }
   ],
   'SaaS': [
-    { source: "Digital News Asia", title: "B2B SaaS Valuations Hold Steady in Malaysia Despite Global Market Correction", url: "https://www.digitalnewsasia.com/startups" },
-    { source: "Vulcan Post", title: "1337 Ventures Highlights Enterprise Software as Top Accelerator Cohort Pick", url: "https://vulcanpost.com/category/malaysia/" }
+    { source: "Digital News Asia", title: "Singapore-based Ropedia raises US$22mil in pre-series A, aims to scale data infrastructure for physical AI", url: "https://www.digitalnewsasia.com/startups/singapore-based-ropedia-raises-us22mil-pre-series-aims-scale-data-infrastructure-physical" },
+    { source: "The SaaS News", title: "Catena Labs Raises $30M in Series A", url: "https://www.thesaasnews.com/news/catena-labs-raises-30m-in-series-a/" }
   ]
 };
 
@@ -44,7 +44,7 @@ export default function ProfileView() {
           const profileData = docSnap.data();
           setProfile(profileData);
           
-          // Instantly load the static news based on their chosen sector
+          // As long as your save function pushes 'sector' to Firebase, this dynamically updates!
           const sectorNews = STATIC_NEWS[profileData.sector] || STATIC_NEWS['FinTech'];
           setNews(sectorNews);
         }
@@ -96,7 +96,7 @@ export default function ProfileView() {
               Market Intelligence Wire
             </h3>
             <span className="bg-slate-800 text-slate-300 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-wider border border-slate-700/50">
-              {profile.sector} Focus
+              {profile.sector || "General"} Focus
             </span>
           </div>
           
@@ -116,16 +116,16 @@ export default function ProfileView() {
         </div>
       </div>
 
-      {/* AI Recommended Matches List */}
+      {/* Recommended Matches List */}
       <div>
         <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2 mb-6">
           <span className="w-3 h-3 rounded-full bg-amber-500" />
-          AI Recommended Matches
+          Synchronized Directory Matches
         </h3>
 
         {matches.length === 0 ? (
           <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-8 text-center">
-            <p className="text-slate-400 font-semibold uppercase tracking-widest">No matches synchronized yet. Complete your startup intake form to begin.</p>
+            <p className="text-slate-400 font-semibold uppercase tracking-widest">No matches synchronized yet. Run a directory search to begin.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -138,25 +138,44 @@ export default function ProfileView() {
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3 mb-2">
                       <h4 className="text-xl font-black text-white tracking-tight">{match.name}</h4>
-                      <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                        {match.matchScore || match.match} Match
-                      </span>
+                      
+                      {/* AI Match Score (Will hide if using Deterministic Data) */}
+                      {(match.matchScore || match.match) && (
+                        <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                          {match.matchScore || match.match} Match
+                        </span>
+                      )}
+
+                      {/* Generic Type/Industry Badge */}
                       <span className="bg-slate-800 text-slate-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                        {match.type}
+                        {match.type || match.industry}
                       </span>
                     </div>
-                    {/* Note: Fallback mapping included so both AI and Manual DSA objects render perfectly */}
-                    <p className="text-sm text-slate-400 mb-4 pr-4">{match.explanation || match.desc}</p>
                     
-                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300">
+                    {/* AI Explanation (Will hide if using Deterministic Data) */}
+                    {(match.explanation || match.desc) && (
+                      <p className="text-sm text-slate-400 mb-4 pr-4">{match.explanation || match.desc}</p>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-300 mt-3">
                       <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
-                        <span className="text-slate-500 uppercase text-[9px] tracking-widest">Focus:</span> {match.focus}
+                        <span className="text-slate-500 uppercase text-[9px] tracking-widest">Industry:</span> {match.focus || match.industry}
                       </div>
+                      
+                      {/* Stage Badge (AI Only) */}
+                      {match.stage && (
+                        <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
+                          <span className="text-slate-500 uppercase text-[9px] tracking-widest">Stage:</span> {match.stage}
+                        </div>
+                      )}
+
+                      {/* Dynamic Ticket Size (Handles both AI fixed size and Deterministic range) */}
                       <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
-                        <span className="text-slate-500 uppercase text-[9px] tracking-widest">Stage:</span> {match.stage}
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-800">
-                        <span className="text-amber-500/70 uppercase text-[9px] tracking-widest">Ticket:</span> RM {match.ticketSize?.toLocaleString() || match.ticketSize}
+                        <span className="text-amber-500/70 uppercase text-[9px] tracking-widest">Funding:</span> 
+                        {match.ticketSize 
+                          ? `RM ${match.ticketSize.toLocaleString()}`
+                          : `RM ${match.minTicket?.toLocaleString()} - RM ${match.maxTicket?.toLocaleString()}`
+                        }
                       </div>
                     </div>
                   </div>
@@ -166,13 +185,7 @@ export default function ProfileView() {
                       onClick={() => window.open(match.portalUrl, '_blank')}
                       className="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-all shadow-[0_0_10px_rgba(245,158,11,0.3)]"
                     >
-                      Launch Portal
-                    </button>
-                    <button 
-                      onClick={() => window.open(match.faqUrl || '#', '_blank')}
-                      className="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl text-xs tracking-wider uppercase transition-colors"
-                    >
-                      View FAQ Guide
+                      Launch Portal ↗
                     </button>
                   </div>
                 </div>
