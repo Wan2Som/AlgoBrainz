@@ -16,40 +16,61 @@ export const investorDatabase = [
     desc: "Leading pre-seed investor specializing in early-stage fintech through their structured accelerator programs." 
   },
   { 
-    id: 3, name: "Cradle Fund (CIP Spark)", ticketSize: 150000, industry: "Tech", type: "Government Grant", 
+    id: 3, name: "Cradle Fund (CIP Spark)", ticketSize: 150000, industry: "SaaS", type: "Government Grant", 
     focus: "Pre-seed, early-stage tech, MVP development", stage: "Ideation / MVP Concept", match: "98%", 
     portalUrl: "https://cradle.com.my", 
     faqUrl: "https://cradle.com.my/cip-spark/", 
     desc: "Perfect conditional grant for Malaysian tech startups at MVP phase to develop and validate early-stage innovations." 
   },
   { 
-    id: 4, name: "MDEC (Digital Content Grant)", ticketSize: 200000, industry: "Creative Tech", type: "Government Grant", 
+    id: 4, name: "MDEC (Digital Content Grant)", ticketSize: 200000, industry: "E-Commerce", type: "Government Grant", 
     focus: "Digital Media, Gaming, Animation", stage: "MVP / Early Traction", match: "92%", 
     portalUrl: "https://mdec.my", 
     faqUrl: "https://mdec.my/grants",
     desc: "Specialized grant supporting local digital content creators and tech developers in commercializing their IPs." 
   },
   { 
-    id: 5, name: "Sunway iLabs", ticketSize: 250000, industry: "FinTech", type: "Corporate VC", 
+    id: 5, name: "Sunway iLabs", ticketSize: 250000, industry: "HealthTech", type: "Corporate VC", 
     focus: "Smart Cities, EdTech, PropTech", stage: "Early Traction", match: "90%", 
     portalUrl: "https://innovationlabs.sunway.edu.my", 
     faqUrl: "https://innovationlabs.sunway.edu.my/about-us/", 
     desc: "Corporate venture arm providing capital and access to the vast Sunway ecosystem as a testbed for startups." 
   },
   { 
-    id: 6, name: "ScaleUp Malaysia", ticketSize: 300000, industry: "Tech", type: "Accelerator", 
+    id: 6, name: "ScaleUp Malaysia", ticketSize: 300000, industry: "SaaS", type: "Accelerator", 
     focus: "Scale-up, B2B, Revenue-generating", stage: "Growth / Series A", match: "85%", 
     portalUrl: "https://www.scaleup.my", 
     faqUrl: "https://www.scaleup.my", 
     desc: "Pegasus-model accelerator focused on helping companies with proven traction scale their operations regionally." 
   },
   { 
-    id: 7, name: "Artem Ventures", ticketSize: 500000, industry: "FinTech", type: "Venture Capital", 
+    id: 7, name: "Artem Ventures", ticketSize: 500000, industry: "AgriTech", type: "Venture Capital", 
     focus: "ESG, FinTech, InsurTech", stage: "Late Seed / Series A", match: "91%", 
     portalUrl: "https://artem.vc", 
     faqUrl: "https://artem.vc/about/", 
     desc: "Partnering with founders building sustainable and impactful technology solutions for the Southeast Asian market." 
   },
+  { 
+    id: 8, name: "Gobi Partners", ticketSize: 1000000, industry: "E-Commerce", type: "Venture Capital", 
+    focus: "E-Commerce, Consumer Tech", stage: "Series A", match: "89%", 
+    portalUrl: "https://gobi.vc", 
+    faqUrl: "https://gobi.vc/contact", 
+    desc: "Pan-Asian venture capital firm focusing on emerging markets, digital economy, and e-commerce growth." 
+  },
+  { 
+    id: 9, name: "Vynn Capital", ticketSize: 1500000, industry: "AgriTech", type: "Venture Capital", 
+    focus: "Supply Chain, AgriTech, Mobility", stage: "Series A", match: "87%", 
+    portalUrl: "https://vynncapital.com", 
+    faqUrl: "https://vynncapital.com/insights/", 
+    desc: "Early-stage venture capital firm focusing heavily on supply chain logistics and agricultural technology." 
+  },
+  { 
+    id: 10, name: "OSK Ventures", ticketSize: 2000000, industry: "HealthTech", type: "Venture Capital", 
+    focus: "Enterprise Tech, HealthTech", stage: "Series A / Series B", match: "84%", 
+    portalUrl: "https://oskvi.com", 
+    faqUrl: "https://oskvi.com/funds.php", 
+    desc: "Strategic investment firm supporting high-growth healthcare and enterprise technology companies across the region." 
+  }
 ];
 
 // Linear Range & Industry Search
@@ -122,5 +143,6 @@ export class BST {
 }
 
 export const investorTree = new BST();
-const insertionOrder = [3, 1, 5, 0, 2, 4, 6]; 
+
+const insertionOrder = [4, 1, 7, 0, 2, 5, 8, 3, 6, 9]; 
 insertionOrder.forEach(i => investorTree.insert(investorDatabase[i]));
