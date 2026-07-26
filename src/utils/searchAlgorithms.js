@@ -14,7 +14,7 @@ export const investorDatabase = [
   
   // RM 100,000 Tier
   { id: 6, name: "Gobi Partners (Seed)", industry: "E-Commerce", minTicket: 100000, maxTicket: 1000000, portalUrl: "https://gobi.vc" },
-  { id: 7, name: "1337 Ventures", industry: "FinTech", minTicket: 100000, maxTicket: 500000, portalUrl: "https://1337ventures.com" },
+  { id: 7, name: "1337 Ventures", industry: "FinTech", minTicket: 100000, maxTicket: 500000, portalUrl: "https://1337.ventures" },
   { id: 8, name: "TinkBig Venture", industry: "SaaS", minTicket: 100000, maxTicket: 300000, portalUrl: "https://example.com/tinkbig" },
   { id: 9, name: "Artem Ventures", industry: "HealthTech", minTicket: 100000, maxTicket: 500000, portalUrl: "https://artem.vc" },
   { id: 10, name: "Sunway iLabs", industry: "AgriTech", minTicket: 100000, maxTicket: 250000, portalUrl: "https://innovationlabs.sunway.edu.my" },
