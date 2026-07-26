@@ -62,6 +62,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Industry Vertical</label>
+              
+              {/* UPDATED DROPDOWN TO MATCH YOUR 5 INDUSTRIES */}
               <select 
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
@@ -69,8 +71,10 @@ export default function InvestorDirectory({ onSaveToProfile }) {
               >
                 <option value="All">All Industries</option>
                 <option value="FinTech">FinTech</option>
-                <option value="Tech">Tech / SaaS</option>
-                <option value="Creative Tech">Creative Tech / Gaming</option>
+                <option value="HealthTech">HealthTech</option>
+                <option value="E-Commerce">E-Commerce</option>
+                <option value="AgriTech">AgriTech</option>
+                <option value="SaaS">SaaS</option>
               </select>
             </div>
 
