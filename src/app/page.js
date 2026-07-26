@@ -66,8 +66,11 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [router]);
 
-  const handleSaveManualMatchesToProfile = async (manualMatches) => {
-    // 1. Update metric counts
+  // UPDATED: Now accepts searchedIndustry to update Profile news feed dynamically
+  const handleSaveManualMatchesToProfile = async (manualMatches, searchedIndustry) => {
+    const targetSector = searchedIndustry === 'All' || !searchedIndustry ? 'FinTech' : searchedIndustry;
+
+    // 1. Update metric counts & local states
     const updatedMetrics = {
       ...metrics,
       matches: manualMatches.length
@@ -75,12 +78,19 @@ export default function Dashboard() {
 
     setRecommendations(manualMatches);
     setMetrics(updatedMetrics);
+    setSmeProfile((prev) => ({
+      ...prev,
+      sector: targetSector,
+      recommendations: manualMatches,
+      metrics: updatedMetrics
+    }));
 
     // 2. Save choice silently to Firebase if authenticated
     if (auth.currentUser) {
       await setDoc(doc(db, "smes", auth.currentUser.uid), {
         recommendations: manualMatches,
-        metrics: updatedMetrics
+        metrics: updatedMetrics,
+        sector: targetSector
       }, { merge: true });
     }
 
@@ -108,15 +118,12 @@ export default function Dashboard() {
       const aiData = await response.json();
       const newRecs = aiData.recommendations || [];
       
-      // Dynamically link matches to the exact array length, and pull AI generated counts
       const newMetrics = {
         matches: newRecs.length, 
         opportunities: aiData.opportunitiesCount || 0,
         connections: aiData.connectionsCount || 0
       };
 
-      let cleanText = JSON.stringify(newRecs);
-      // ADDED { merge: true } TO STOP IT FROM DELETING CHAT HISTORY
       await setDoc(doc(db, "smes", user.uid), {
         ...submittedData,
         metrics: newMetrics,
@@ -133,7 +140,7 @@ export default function Dashboard() {
 
       setMetrics(newMetrics);
       setRecommendations(newRecs);
-      setUserName(submittedData.founderName || nameToSet);
+      setUserName(submittedData.founderName || 'Founder');
       setActiveTab('profile');
 
     } catch (e) {
@@ -144,13 +151,11 @@ export default function Dashboard() {
   };
 
   const handleApplyToOpportunity = async (opportunity) => {
-    // 1. Prevent adding the exact same company twice
     if (activeApplications.find(app => app.name === opportunity.name)) {
       setActiveTab(smeProfile?.isRegistered ? 'launch' : 'roadmap');
       return;
     }
 
-    // 2. Format the data for the Kanban board
     const newApp = {
       id: Date.now().toString(),
       name: opportunity.name,
@@ -163,15 +168,12 @@ export default function Dashboard() {
     const updatedApps = [...activeApplications, newApp];
     setActiveApplications(updatedApps);
 
-    // 3. Save it to Firebase so it remembers on refresh
-    // Save choice to database silently
     if (auth.currentUser) {
       await setDoc(doc(db, "smes", auth.currentUser.uid), {
         activeApplications: updatedApps
       }, { merge: true });
     }
 
-    // Auto-route straight to Analytics so they can see their odds immediately!
     setActiveTab('analytics');
   };
 
@@ -200,10 +202,8 @@ export default function Dashboard() {
       />
 
       <div className="flex relative z-10 min-h-screen">
-        {/* Sidebar abstraction link hooks */}
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
 
-        {/* Dynamic Margin spacing offsets content layout so sidebar does not overlap fixed components */}
         <main className="flex-1 h-screen overflow-y-auto custom-scrollbar relative z-10 pl-72 pr-12 py-12">
           
           {activeTab === 'profile' && (
