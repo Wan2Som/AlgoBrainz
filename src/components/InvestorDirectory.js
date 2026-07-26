@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { investorDatabase, investorTree, linearSearchInvestors } from '../utils/searchAlgorithms';
+import { investorDatabase, investorTree, linearSearchInvestors } from './searchAlgorithms';
 
 export default function InvestorDirectory({ onSaveToProfile }) {
   const [minTicket, setMinTicket] = useState('');
