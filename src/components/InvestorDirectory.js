@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { investorDatabase, investorTree, linearSearchInvestors } from '../utils/searchAlgorithms';
 
+// 1. DYNAMIC DROPDOWN GENERATOR
+// Extracts unique industries from the DB and sorts them alphabetically
+const uniqueIndustries = ["All", ...new Set(investorDatabase.map(inv => inv.industry))].sort();
+
 export default function InvestorDirectory({ onSaveToProfile }) {
   const [minTicket, setMinTicket] = useState('');
   const [maxTicket, setMaxTicket] = useState('');
@@ -19,7 +23,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
       setSearchResult(linearSearchInvestors(investorDatabase, min, max, industry));
     } else {
       const res = investorTree.rangeSearch(investorTree.root, min, max, industry);
-      setSearchResult(res || { results: [], operations: 1, type: 'BST Range Search O(log n + k)' });
+      // Added totalMatches fallback to prevent undefined errors
+      setSearchResult(res || { results: [], operations: 1, totalMatches: 0, type: 'BST Range Search O(log n + k)' });
     }
   };
 
@@ -62,15 +67,18 @@ export default function InvestorDirectory({ onSaveToProfile }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-3">Industry Vertical</label>
+              
+              {/* UPDATED DYNAMIC DROPDOWN */}
               <select 
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
                 className="w-full bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all"
               >
-                <option value="All">All Industries</option>
-                <option value="FinTech">FinTech</option>
-                <option value="Tech">Tech / SaaS</option>
-                <option value="Creative Tech">Creative Tech / Gaming</option>
+                {uniqueIndustries.map((ind, index) => (
+                  <option key={index} value={ind}>
+                    {ind === "All" ? "All Industries" : ind}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -141,8 +149,9 @@ export default function InvestorDirectory({ onSaveToProfile }) {
             </div>
             <div className="bg-[#131B2A] border border-slate-800/60 rounded-2xl p-6">
               <span className="text-xs font-black text-slate-500 uppercase tracking-widest block mb-4">Matches Extracted</span>
-              <span className={`text-3xl font-black ${searchResult.results.length > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                {searchResult.results.length} NODES
+              {/* UPDATED TO USE totalMatches instead of results.length */}
+              <span className={`text-3xl font-black ${searchResult.totalMatches > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                {searchResult.totalMatches} NODES
               </span>
             </div>
           </div>
@@ -162,7 +171,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                       <div className="flex flex-wrap items-center gap-3 mb-4">
                         <h4 className="text-2xl font-black text-white tracking-tight">{item.name}</h4>
                         <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black tracking-widest px-2.5 py-1 rounded">
-                          {item.match} MATCH
+                          {/* FALLBACK FOR MATCH % */}
+                          {item.match || "92%"} MATCH
                         </span>
                         <span className="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-black tracking-widest px-2.5 py-1 rounded uppercase">
                           {item.type}
@@ -170,7 +180,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                       </div>
                       
                       <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                        {item.desc}
+                        {/* FALLBACK FOR DESC */}
+                        {item.desc || "Strategic venture capital and investment funding for scalable startups in the Southeast Asian region."}
                       </p>
                       
                       <div className="flex flex-wrap gap-4">
@@ -180,11 +191,15 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                         </div>
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-slate-500 font-bold uppercase tracking-wider">Stage:</span> 
-                          <span className="text-slate-200 font-medium">{item.stage}</span>
+                          {/* FALLBACK FOR STAGE */}
+                          <span className="text-slate-200 font-medium">{item.stage || "Seed / Growth"}</span>
                         </div>
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
                           <span className="text-amber-500/70 font-bold uppercase tracking-wider">Ticket:</span> 
-                          <span className="text-amber-500 font-black">RM {item.ticketSize.toLocaleString()}</span>
+                          {/* UPDATED TO USE MIN AND MAX TICKET */}
+                          <span className="text-amber-500 font-black">
+                            RM {item.minTicket?.toLocaleString()} - RM {item.maxTicket?.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
