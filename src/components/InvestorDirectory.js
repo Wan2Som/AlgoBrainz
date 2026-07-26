@@ -25,8 +25,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
     setIsSearching(true);
     setActiveAlgorithm(type);
     
-    // 3. Fake Delay: Linear takes 1500ms, BST takes 400ms
-    const delay = type === 'Linear' ? 1500 : 400;
+    const delay = type === 'Linear' ? 6000 : 2000;
 
     setTimeout(() => {
       let res;
