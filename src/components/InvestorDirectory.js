@@ -201,17 +201,6 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                             {item.industry}
                           </span>
                         </div>
-                        
-                        {/* The new "Visit Website" Button */}
-                        <a 
-                          href={item.portalUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="bg-slate-800 text-slate-300 border border-slate-700 text-xs font-black tracking-widest px-4 py-2 rounded uppercase hover:bg-amber-500 hover:text-[#0B1120] transition-colors"
-                        >
-                          Visit Portal ↗
-                        </a>
-                      </div>
                       
                       <div className="flex flex-wrap gap-4 mt-6">
                         <div className="bg-[#0B1120] border border-slate-800/80 rounded-lg px-4 py-2.5 text-xs flex gap-2 items-center">
