@@ -4,57 +4,72 @@ import React, { useState } from 'react';
 import { investorDatabase, investorTree, linearSearchInvestors, getClosestFallback } from '../utils/searchAlgorithms';
 
 export default function InvestorDirectory({ onSaveToProfile }) {
-  const [minTicket, setMinTicket] = useState(50000);
-  const [maxTicket, setMaxTicket] = useState(2000000);
+  // 1. Initialized as empty strings so placeholders appear
+  const [minTicket, setMinTicket] = useState("");
+  const [maxTicket, setMaxTicket] = useState("");
   const [industry, setIndustry] = useState('All');
   const [searchResult, setSearchResult] = useState(null);
   const [step, setStep] = useState(1);
   const [isFallback, setIsFallback] = useState(false);
+  
+  // 2. New state to handle the fake loading screen
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeAlgorithm, setActiveAlgorithm] = useState("");
 
   const executeSearch = (type) => {
-    const min = parseInt(minTicket) || 0;
-    const max = parseInt(maxTicket) || Infinity;
+    // If user leaves it blank, default to 0 and Infinity for the math to still work
+    const min = minTicket === "" ? 0 : parseInt(minTicket);
+    const max = maxTicket === "" ? Infinity : parseInt(maxTicket);
     
     setStep(2);
+    setIsSearching(true);
+    setActiveAlgorithm(type);
     
-    let res;
-    if (type === 'Linear') {
-      res = linearSearchInvestors(investorDatabase, min, max, industry);
-      res.type = 'Linear Search O(N)';
-    } else {
-      res = investorTree.rangeSearch(investorTree.root, min, max, industry);
-      res = res || { results: [], operations: 1 };
-      res.type = 'BST Range Search O(log N + K)';
-    }
+    // 3. Fake Delay: Linear takes 1500ms, BST takes 400ms
+    const delay = type === 'Linear' ? 1500 : 400;
 
-    if (res.results.length === 0) {
-      const fallbackData = getClosestFallback(investorDatabase, min, max, industry);
-      setSearchResult({ 
-        results: fallbackData, 
-        operations: res.operations, 
-        type: res.type 
-      });
-      setIsFallback(true);
-    } else {
-      setSearchResult(res);
-      setIsFallback(false);
-    }
+    setTimeout(() => {
+      let res;
+      if (type === 'Linear') {
+        res = linearSearchInvestors(investorDatabase, min, max, industry);
+        res.type = 'Linear Search O(N)';
+      } else {
+        res = investorTree.rangeSearch(investorTree.root, min, max, industry);
+        res = res || { results: [], operations: 1 };
+        res.type = 'BST Range Search O(log N + K)';
+      }
+
+      if (res.results.length === 0) {
+        const fallbackData = getClosestFallback(investorDatabase, min, max, industry);
+        setSearchResult({ 
+          results: fallbackData, 
+          operations: res.operations, 
+          type: res.type 
+        });
+        setIsFallback(true);
+      } else {
+        setSearchResult(res);
+        setIsFallback(false);
+      }
+      
+      setIsSearching(false);
+    }, delay);
   };
 
   const handleApplyMatches = () => {
     if (searchResult && searchResult.results.length > 0) {
-      // Passes both matches and current industry filter to update profile news
       onSaveToProfile(searchResult.results, industry);
     }
   };
 
   const resetSearch = () => {
-    setMinTicket(50000);
-    setMaxTicket(2000000);
+    setMinTicket("");
+    setMaxTicket("");
     setIndustry('All');
     setSearchResult(null);
     setStep(1);
     setIsFallback(false);
+    setIsSearching(false);
   };
 
   return (
@@ -73,8 +88,8 @@ export default function InvestorDirectory({ onSaveToProfile }) {
         </div>
       </div>
 
-      {/* INPUT FORM */}
-      {!searchResult && (
+      {/* INPUT FORM (Hidden while searching or showing results) */}
+      {!searchResult && !isSearching && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Deterministic Search Directory</h1>
           <p className="text-slate-400 mb-10">Execute precise parameter-based traversal and data extraction directly across validated memory nodes.</p>
@@ -111,7 +126,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
                   type="number" 
                   value={maxTicket}
                   onChange={(e) => setMaxTicket(e.target.value)}
-                  placeholder="Max (e.g. 250000)"
+                  placeholder="Max (e.g. 2000000)"
                   className="w-1/2 bg-[#0B1120] border border-slate-800/80 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition-all placeholder:text-slate-700"
                 />
               </div>
@@ -141,8 +156,22 @@ export default function InvestorDirectory({ onSaveToProfile }) {
         </div>
       )}
 
+      {/* FAKE LOADING SCREEN */}
+      {isSearching && (
+        <div className="animate-in fade-in zoom-in duration-300 flex flex-col items-center justify-center py-32">
+          <div className="w-16 h-16 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin mb-8"></div>
+          <h2 className="text-2xl font-black text-white tracking-widest uppercase mb-3">
+            Executing Traversal
+          </h2>
+          <p className="text-slate-500 font-bold uppercase text-xs tracking-widest animate-pulse flex items-center gap-2">
+            <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+            {activeAlgorithm === 'Linear' ? 'Scanning all memory nodes O(N)...' : 'Navigating Binary Search Tree O(Log N)...'}
+          </p>
+        </div>
+      )}
+
       {/* RESULTS VIEW */}
-      {searchResult && (
+      {searchResult && !isSearching && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex justify-between items-end mb-8">
             <div>
