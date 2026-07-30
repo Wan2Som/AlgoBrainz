@@ -25,7 +25,7 @@ export default function InvestorDirectory({ onSaveToProfile }) {
     setIsSearching(true);
     setActiveAlgorithm(type);
     
-    const delay = type === 'Linear' ? 5000 : 1000;
+    const delay = type === 'Linear' ? 3000 : 700;
 
     setTimeout(() => {
       let res;
